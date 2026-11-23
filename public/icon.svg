@@ -1,15 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#2f8f6b"/>
-  <circle cx="300" cy="138" r="40" fill="#f4c542" stroke="#d9a520" stroke-width="8"/>
-  <rect x="284" y="128" width="32" height="20" rx="4" fill="#d9a520"/>
-  <path d="M170 215 L150 160 L215 190 Z" fill="#f08aa4"/>
-  <ellipse cx="250" cy="290" rx="150" ry="115" fill="#f7a8bc"/>
-  <rect x="160" y="370" width="38" height="62" rx="14" fill="#f08aa4"/>
-  <rect x="290" y="370" width="38" height="62" rx="14" fill="#f08aa4"/>
-  <rect x="235" y="182" width="64" height="12" rx="6" fill="#c9607d"/>
-  <ellipse cx="395" cy="290" rx="34" ry="40" fill="#f08aa4"/>
-  <ellipse cx="386" cy="278" rx="7" ry="10" fill="#c9607d"/>
-  <ellipse cx="404" cy="302" rx="7" ry="10" fill="#c9607d"/>
-  <circle cx="330" cy="250" r="12" fill="#3a2a2f"/>
-  <path d="M100 280 q-30 -10 -22 -40" stroke="#f08aa4" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#1fe08f"/>
+      <stop offset="1" stop-color="#0fa9dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g fill="none" stroke="#fff" stroke-width="30">
+    <path d="M149.9 155.9 A150 150 0 1 1 230 409.7"/>
+    <path d="M204.7 403 A150 150 0 0 1 106.6 275.1" stroke-dasharray="30 20"/>
+  </g>
+  <polygon points="104,200 180,186 124,126" fill="#fff"/>
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" transform="translate(256 262) scale(0.78) translate(-256 -262)">
+    <polyline points="192,192 225,332 256,240 287,332 320,192" stroke-width="34"/>
+    <line x1="178" y1="252" x2="334" y2="252" stroke-width="22"/>
+    <line x1="178" y1="288" x2="334" y2="288" stroke-width="22"/>
+  </g>
 </svg>
