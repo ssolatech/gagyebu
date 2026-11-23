@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import Sheet from './Sheet.jsx'
+import { confirmDialog } from './Dialog.jsx'
 import { CATEGORIES, METHODS } from '../categories.js'
 import { formatNumber, today } from '../utils.js'
 
@@ -35,9 +36,20 @@ export default function TxForm({ initial, defaultDate, saving, onSave, onDelete,
     set({ amount: Number(digits) })
   }
 
-  const dismiss = useCallback(() => {
+  const dismiss = useCallback(async () => {
     if (saving) return
-    if (dirty && !confirm('작성 중인 내용이 사라져요. 닫을까요?')) return
+    if (
+      dirty &&
+      !(await confirmDialog({
+        title: '작성을 그만둘까요?',
+        message: '입력한 내용은 저장되지 않아요.',
+        confirmText: '그만두기',
+        cancelText: '계속 쓰기',
+        tone: 'warn',
+        icon: '✏️',
+      }))
+    )
+      return
     onCancel()
   }, [dirty, saving, onCancel])
 
@@ -54,7 +66,13 @@ export default function TxForm({ initial, defaultDate, saving, onSave, onDelete,
   }
 
   async function remove() {
-    if (!confirm('이 내역을 삭제할까요?')) return
+    const ok = await confirmDialog({
+      title: '이 내역을 삭제할까요?',
+      message: `${initial.memo || initial.category} · ${formatNumber(initial.amount)}원\n삭제하면 되돌릴 수 없어요.`,
+      confirmText: '삭제',
+      tone: 'danger',
+    })
+    if (!ok) return
     try {
       await onDelete(initial.id)
     } catch (err) {

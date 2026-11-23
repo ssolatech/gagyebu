@@ -298,3 +298,33 @@ legend { padding: 0; margin-bottom: 6px; }
 .banner a { color: var(--accent); font-weight: 700; }
 .banner-error { background: color-mix(in srgb, var(--expense) 14%, transparent); }
 .banner .icon-btn { width: 28px; height: 28px; font-size: 14px; flex: none; }
+
+/* 안내창 (confirm / alert 대신) */
+html.dialog-open { overflow: hidden; }
+.dialog-dim {
+  position: fixed; inset: 0; z-index: 30; background: var(--dim);
+  display: grid; place-items: center; padding: 24px;
+  animation: fade 0.15s;
+}
+.dialog {
+  width: 100%; max-width: 340px; background: var(--surface); border-radius: 24px;
+  padding: 26px 20px 18px; text-align: center; box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+  animation: pop 0.18s ease-out;
+}
+.dialog-icon {
+  width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 26px; background: var(--accent-soft);
+}
+.dialog-danger .dialog-icon { background: color-mix(in srgb, var(--expense) 14%, transparent); }
+.dialog-warn .dialog-icon { background: color-mix(in srgb, var(--warn) 18%, transparent); }
+.dialog h2 { font-size: 18px; margin: 0 0 6px; word-break: keep-all; }
+.dialog-message { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; white-space: pre-line; word-break: keep-all; }
+.dialog-actions { display: flex; gap: 8px; margin-top: 22px; }
+.dialog-btn { flex: 1; border: 0; border-radius: 14px; padding: 13px 10px; font-weight: 700; }
+.dialog-btn.cancel { background: var(--surface-2); color: var(--text); }
+.dialog-btn.ok { background: var(--accent); color: #fff; }
+.dialog-btn.ok.danger { background: var(--expense); }
+.dialog-btn.ok.warn { background: var(--text); color: var(--surface); }
+.dialog-btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+@keyframes pop { from { transform: scale(0.94); opacity: 0; } }
+.dialog:focus { outline: none; }

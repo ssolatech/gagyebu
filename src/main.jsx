@@ -1,11 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
+import { DialogHost } from './components/Dialog.jsx'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
+    <DialogHost />
   </StrictMode>,
 )
 

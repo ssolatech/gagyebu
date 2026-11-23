@@ -1,7 +1,7 @@
 // 오프라인에서도 앱 화면은 열리게 하는 서비스 워커.
 // 항상 인터넷에서 최신 파일을 먼저 받고, 실패하면(오프라인) 저장해 둔 파일을 쓴다.
 // 구글 로그인·드라이브 요청은 건드리지 않는다. (저장과 불러오기에는 인터넷이 필요)
-const CACHE = 'gagyebu-v4'
+const CACHE = 'gagyebu-v5'
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'manifest.webmanifest', 'icon-192.png'])))

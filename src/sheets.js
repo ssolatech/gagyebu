@@ -128,7 +128,7 @@ export async function upload(ledger, savedId, askOverwrite) {
   let sheet = await findSpreadsheet(savedId)
   if (sheet && askOverwrite) {
     const n = sheet.tabs.has('내역') ? await countRows(sheet.id) : 0
-    if (n > 0 && !askOverwrite(n)) return null
+    if (n > 0 && !(await askOverwrite(n))) return null
   }
   sheet ??= await createSpreadsheet()
   await prepareTabs(sheet)

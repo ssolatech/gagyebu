@@ -5,6 +5,7 @@ import Calendar from './components/Calendar.jsx'
 import Stats from './components/Stats.jsx'
 import TxForm from './components/TxForm.jsx'
 import SettingsForm from './components/SettingsForm.jsx'
+import { confirmDialog } from './components/Dialog.jsx'
 import {
   cloudEnabled,
   loadLedger,
@@ -116,12 +117,16 @@ export default function App() {
       const ask = syncRef.current.uploadedAt
         ? null
         : (n) =>
-            confirm(
-              `구글 시트 '가계부'에 이미 내역이 ${n}건 있어요.\n\n` +
-                '업로드하면 시트가 이 폰의 내용으로 바뀌어요. (시트에만 있던 내역은 사라져요)\n' +
-                '시트 내용을 이 폰으로 가져오려면 취소하고 설정 > 시트에서 불러오기를 눌러 주세요.\n\n' +
-                '그래도 업로드할까요?',
-            )
+            confirmDialog({
+              title: '시트에 이미 내역이 있어요',
+              message:
+                `구글 시트 '가계부'에 내역이 ${n}건 있어요.\n` +
+                '업로드하면 시트가 이 폰의 내용으로 바뀌고, 시트에만 있던 내역은 사라져요.\n\n' +
+                '시트 내용을 이 폰으로 가져오려면 취소하고\n설정 → 시트에서 불러오기를 눌러 주세요.',
+              confirmText: '덮어쓰기',
+              tone: 'danger',
+              icon: '☁️',
+            })
       const sheetId = await upload(ledger, syncRef.current.sheetId, ask)
       if (!sheetId) return
       // 업로드하는 동안 새로 쓴 내역은 '업로드 안 됨'으로 남겨 둔다.
@@ -130,9 +135,17 @@ export default function App() {
     })
   }
 
-  function handleRestore() {
-    const warn = sync.changes > 0 ? `\n\n아직 업로드하지 않은 변경 ${sync.changes}건이 사라져요.` : ''
-    if (!confirm(`이 폰의 가계부를 구글 시트 내용으로 바꿀까요?${warn}`)) return
+  async function handleRestore() {
+    const ok = await confirmDialog({
+      title: '시트에서 불러올까요?',
+      message:
+        '이 폰의 가계부가 구글 시트 내용으로 바뀌어요.' +
+        (sync.changes > 0 ? `\n아직 업로드하지 않은 변경 ${sync.changes}건은 사라져요.` : ''),
+      confirmText: '불러오기',
+      tone: sync.changes > 0 ? 'danger' : 'default',
+      icon: '⬇️',
+    })
+    if (!ok) return
     withGoogle('restore', async () => {
       const result = await download(syncRef.current.sheetId)
       if (!result) {
