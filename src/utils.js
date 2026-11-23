@@ -110,7 +110,12 @@ export function sortTransactions(list) {
 
 // 엑셀에서 한글이 깨지지 않게 BOM을 붙인 CSV로 내려받는다.
 export function downloadCsv(transactions, filename) {
-  const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
+  // 엑셀이 = + - @ 로 시작하는 칸을 수식으로 실행하지 않게 앞에 ' 를 붙인다. (금액 숫자는 그대로)
+  const esc = (v) => {
+    let s = String(v ?? '')
+    if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`
+    return `"${s.replace(/"/g, '""')}"`
+  }
   const rows = [
     ['날짜', '구분', '분류', '금액', '결제수단', '메모'],
     ...sortTransactions(transactions)

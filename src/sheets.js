@@ -9,6 +9,18 @@ const TABS = ['내역', '기간별 요약', '설정']
 const HEAD = ['날짜', '구분', '분류', '금액', '결제수단', '메모', 'ID']
 const q = (tab) => `'${tab}'`
 
+const MAX_AMOUNT = 999_999_999_999 // 입력 칸과 같은 12자리
+const MAX_ROWS = 50_000
+
+// 형식만 맞는 '2026-13-45' 같은 날짜는 거른다.
+function isRealDate(value) {
+  const s = String(value)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false
+  const [y, m, d] = s.split('-').map(Number)
+  const dt = new Date(y, m - 1, d)
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d
+}
+
 export const sheetUrl = (id) => `https://docs.google.com/spreadsheets/d/${id}/edit`
 
 async function getTabs(id) {
@@ -138,21 +150,30 @@ export async function download(savedId) {
   const data = await google.sheets(`/${sheet.id}/values:batchGet?${params}&valueRenderOption=UNFORMATTED_VALUE`)
   const [rows = [], settingRows = []] = data.valueRanges.map((v) => v.values ?? [])
 
+  // 시트는 사람이 고칠 수 있는 곳이라, 들어온 값은 하나하나 검사하고 길이·범위를 제한한다.
+  const ids = new Set()
+  const text = (v, max) => String(v ?? '').trim().slice(0, max)
   const transactions = rows
-    .filter(([date, , , amount]) => /^\d{4}-\d{2}-\d{2}$/.test(String(date)) && Number(amount) > 0)
-    .map(([date, type, category, amount, method, memo, id], i) => ({
-      id: id ? String(id) : crypto.randomUUID(),
-      date: String(date),
-      type: type === '수입' ? 'income' : 'expense',
-      category: String(category ?? '기타') || '기타',
-      amount: Math.round(Number(amount)),
-      method: String(method ?? ''),
-      memo: String(memo ?? ''),
-      createdAt: i,
-    }))
-  const setting = Object.fromEntries(settingRows)
+    .filter(([date, , , amount]) => isRealDate(date) && Number.isFinite(Number(amount)) && Number(amount) > 0)
+    .slice(0, MAX_ROWS)
+    .map(([date, type, category, amount, method, memo, id], i) => {
+      let safeId = text(id, 64)
+      if (!/^[\w-]+$/.test(safeId) || ids.has(safeId)) safeId = crypto.randomUUID()
+      ids.add(safeId)
+      return {
+        id: safeId,
+        date: String(date),
+        type: type === '수입' ? 'income' : 'expense',
+        category: text(category, 20) || '기타',
+        amount: Math.min(MAX_AMOUNT, Math.round(Number(amount))),
+        method: text(method, 20),
+        memo: text(memo, 60),
+        createdAt: i,
+      }
+    })
+  const setting = Object.fromEntries(settingRows.filter((r) => r.length >= 2))
   const startDay = Math.min(31, Math.max(1, Math.round(Number(setting['한 달 시작일'])) || 1))
-  const budget = Math.max(0, Math.round(Number(setting['한 달 예산'])) || 0)
+  const budget = Math.min(MAX_AMOUNT, Math.max(0, Math.round(Number(setting['한 달 예산'])) || 0))
 
   return { id: sheet.id, ledger: { transactions, settings: { startDay, budget } } }
 }

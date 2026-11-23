@@ -23,8 +23,12 @@ function read(key) {
 
 export function loadLedger() {
   const data = read(LEDGER_KEY)
-  if (!data) return emptyLedger()
-  return { transactions: data.transactions ?? [], settings: { ...emptyLedger().settings, ...data.settings } }
+  // 저장 데이터가 깨져 있어도 앱이 멈추지 않게 형태를 확인한다.
+  if (!data || typeof data !== 'object') return emptyLedger()
+  const transactions = Array.isArray(data.transactions)
+    ? data.transactions.filter((t) => t && typeof t.date === 'string' && Number.isFinite(t.amount))
+    : []
+  return { transactions, settings: { ...emptyLedger().settings, ...data.settings } }
 }
 
 // 저장 공간이 꽉 찼거나 막혀 있으면 에러를 던진다. (화면에 반영하기 전에 먼저 저장한다)
